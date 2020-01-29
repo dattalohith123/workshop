@@ -1,8 +1,4 @@
 
-// Robo India Tutorial 
-// Simple code upload the tempeature and humidity data using thingspeak.com
-// Hardware: NodeMCU,DHT11
-
 #include <DHT.h>  // Including library for dht
 
 #include <ESP8266WiFi.h>
