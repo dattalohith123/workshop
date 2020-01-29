@@ -2,10 +2,10 @@
 #include "Adafruit_MQTT.h"
 #include "Adafruit_MQTT_Client.h"
 
-#define mot1            D1
-#define mot2            D2
-#define mot3            D3
-#define mot4            D4
+#define in1            D1
+#define in2            D2
+#define in3            D3
+#define in4            D4
 
 #define WLAN_SSID       "Vyshu "             // Your SSID
 #define WLAN_PASS       "Nagaraju"        // Your password
@@ -22,20 +22,21 @@ WiFiClient client;
 
 Adafruit_MQTT_Client mqtt(&client, AIO_SERVER, AIO_SERVERPORT, AIO_USERNAME, AIO_KEY);
 
-Adafruit_MQTT_Subscribe motor1 = Adafruit_MQTT_Subscribe(&mqtt, AIO_USERNAME"/feeds/mot1"); // Feeds name should be same everywhere
-Adafruit_MQTT_Subscribe motor2 = Adafruit_MQTT_Subscribe(&mqtt, AIO_USERNAME "/feeds/mot2");
-Adafruit_MQTT_Subscribe motor3 = Adafruit_MQTT_Subscribe(&mqtt, AIO_USERNAME "/feeds/mot3");
-Adafruit_MQTT_Subscribe motor4 = Adafruit_MQTT_Subscribe(&mqtt, AIO_USERNAME "/feeds/mot4");
+Adafruit_MQTT_Subscribe front = Adafruit_MQTT_Subscribe(&mqtt, AIO_USERNAME"/feeds/front"); // Feeds name should be same everywhere
+Adafruit_MQTT_Subscribe left = Adafruit_MQTT_Subscribe(&mqtt, AIO_USERNAME "/feeds/left");
+Adafruit_MQTT_Subscribe right = Adafruit_MQTT_Subscribe(&mqtt, AIO_USERNAME "/feeds/right");
+Adafruit_MQTT_Subscribe back = Adafruit_MQTT_Subscribe(&mqtt, AIO_USERNAME "/feeds/back");
+Adafruit_MQTT_Subscribe stopping = Adafruit_MQTT_Subscribe(&mqtt, AIO_USERNAME "/feeds/stopping");
 
 void MQTT_connect();
 
 void setup() {
   Serial.begin(115200);
 
-  pinMode(mot1, OUTPUT);
-  pinMode(mot2, OUTPUT);
-  pinMode(mot3, OUTPUT);
-  pinMode(mot4, OUTPUT);
+  pinMode(in1, OUTPUT);
+  pinMode(in2, OUTPUT);
+  pinMode(in3, OUTPUT);
+  pinMode(in4, OUTPUT);
   
   // Connect to WiFi access point.
   Serial.println(); Serial.println();
@@ -53,10 +54,11 @@ void setup() {
   Serial.println("IP address: "); 
   Serial.println(WiFi.localIP());
  
-  mqtt.subscribe(&motor1);
-  mqtt.subscribe(&motor3);
-  mqtt.subscribe(&motor2);
-  mqtt.subscribe(&motor4);
+  mqtt.subscribe(&front);
+  mqtt.subscribe(&right);
+  mqtt.subscribe(&left);
+  mqtt.subscribe(&back);
+  mqtt.subscribe(&stopping);
 }
 
 void loop() {
@@ -66,31 +68,64 @@ void loop() {
 
   Adafruit_MQTT_Subscribe *subscription;
   while ((subscription = mqtt.readSubscription(20000))) {
-    if (subscription == &motor1) {
+    if (subscription == &front) {
+      back->save(LOW);
+      right->save(LOW);
+      left->save(LOW);
+      stopping->save(LOW);
       Serial.print(F("Got: "));
-      Serial.println((char *)motor1.lastread);
-      int motor1_State = atoi((char *)motor1.lastread);
-      digitalWrite(mot1, motor1_State);
+      Serial.println((char *)front.lastread);
+      digitalWrite(in1,HIGH);
+      digitalWrite(in2,LOW);
+      digitalWrite(in3,HIGH);
+      digitalWrite(in4,LOW);
      
-    }
-    if (subscription == &motor2) {
+   }
+    if (subscription == &left) {
+      front->save(LOW);
+      back->save(LOW);
+      right->save(LOW);
+      stopping->save(LOW);
       Serial.print(F("Got: "));
-      Serial.println((char *)motor2.lastread);
-      int motor2_State = atoi((char *)motor2.lastread);
-      digitalWrite(mot2, motor2_State);
+      Serial.println((char *)left.lastread);
+      digitalWrite(in1,LOW);
+      digitalWrite(in2,LOW);
+      digitalWrite(in3,HIGH);
+      digitalWrite(in4,LOW);
     }
-    if (subscription == &motor3) {
+    if (subscription == &right) {
       Serial.print(F("Got: "));
-      Serial.println((char *)motor3.lastread);
-      int motor3_State = atoi((char *)motor3.lastread);
-      digitalWrite(mot3, motor3_State);
+      Serial.println((char *)right.lastread);
+      digitalWrite(in1,HIGH);
+      digitalWrite(in2,LOW);
+      digitalWrite(in3,LOW);
+      digitalWrite(in4,LOW);
+}
+    if (subscription == &back) {
+      front->save(LOW);
+      right->save(LOW);
+      left->save(LOW);
+      stopping->save(LOW);
+      Serial.print(F("Got: "));
+      Serial.println((char *)back.lastread);
+      digitalWrite(in2,HIGH);
+      digitalWrite(in1,LOW);
+      digitalWrite(in4,HIGH);
+      digitalWrite(in3,LOW);
+ 
     }
-    if (subscription == &motor4) {
+    if (subscription == &stopping) {
+      front->save(LOW);
+      back->save(LOW);
+      right->save(LOW);
+      left->save(LOW);
       Serial.print(F("Got: "));
-      Serial.println((char *)motor4.lastread);
-      int motor4_State = atoi((char *)motor4.lastread);
-      digitalWrite(mot4, motor4_State);
-      
+      Serial.println((char *)back.lastread);
+      digitalWrite(in2,LOW);
+      digitalWrite(in1,LOW);
+      digitalWrite(in4,LOW);
+      digitalWrite(in3,LOW);
+ 
     }
   }
 
