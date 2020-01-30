@@ -44,7 +44,7 @@ void setup() {
   Serial.println("IP address: "); 
   Serial.println(WiFi.localIP());
  
-  mqtt.subscribe(&led1);
+  mqtt.subscribe(&led);
 }
 
 void loop() {
