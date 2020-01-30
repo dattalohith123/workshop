@@ -4,8 +4,8 @@
 
 #define led1          D1
 
-#define WLAN_SSID       "Vyshu "             // Your SSID
-#define WLAN_PASS       "Nagaraju"        // Your password
+#define WLAN_SSID       "ssid"             // Your SSID
+#define WLAN_PASS       "password"        // Your password
 
 /************************* Adafruit.io Setup *********************************/
 
